@@ -21,7 +21,7 @@ import ffmpeg
 import configargparse
 from PIL import Image, ImageEnhance
 from fractions import Fraction
-from omni_epd import displayfactory, EPDNotFoundError
+#from omni_epd import displayfactory, EPDNotFoundError
 
 
 # Compatible video file-extensions
@@ -64,7 +64,7 @@ def generate_frame(in_filename, out_filename, time):
         .overlay_filter()
         .output(out_filename, vframes=1, copyts=None)
         .overwrite_output()
-        .run(capture_stdout=True, capture_stderr=True)
+        .run(capture_stdout=False, capture_stderr=False)
     )
 
 
@@ -255,7 +255,8 @@ args = parser.parse_args()
 logger.setLevel(getattr(logging, args.loglevel))
 
 # Set up e-Paper display - do this first since we can't do much if it fails
-try:
+'''
+    try:
     epd = displayfactory.load_display_driver(args.epd)
 except EPDNotFoundError:
     # EPD not found, give a list of supported displays
@@ -266,10 +267,10 @@ except EPDNotFoundError:
 
     # can't get past this
     sys.exit(1)
-
+'''
 # set width and height
-width = epd.width
-height = epd.height
+width = 800 #epd.width
+height = 600 #epd.height
 
 # Set path of Videos directory and logs directory. Videos directory can be specified by CLI --directory
 if args.directory:
@@ -381,7 +382,7 @@ while True:
 
     # Note the time when starting to display so later we can sleep for the delay value minus how long this takes
     timeStart = time.perf_counter()
-    epd.prepare()
+    #epd.prepare()
 
     if args.random_frames:
         currentFrame = random.randint(0, videoInfo["frame_count"])
@@ -389,10 +390,12 @@ while True:
     msTimecode = f"{int(currentFrame * videoInfo['frame_time'])}ms"
 
     # Use ffmpeg to extract a frame from the movie, letterbox/pillarbox it, and put it in memory as frame.bmp
-    generate_frame(currentVideo, "/dev/shm/frame.bmp", msTimecode)
+    #generate_frame(currentVideo, "/User/wello/Documents/VSMP/SlowMovie/shm/frame.bmp", msTimecode)
+    generate_frame("/Users/wello/Documents/VSMP/SlowMovie/Videos/test.mp4", "/Users/wello/Documents/VSMP/SlowMovie/shm/frame.bmp", msTimecode)
 
     # Open frame.bmp in PIL
-    pil_im = Image.open("/dev/shm/frame.bmp")
+    pil_im = Image.open("/Users/wello/Documents/VSMP/SlowMovie/shm/frame.bmp")
+    pil_im.show()
 
     # Adjust contrast if specified
     if args.contrast != 1:
@@ -401,7 +404,7 @@ while True:
 
     # Display the image
     logger.debug(f"Displaying frame {int(currentFrame)} of {videoFilename} ({(currentFrame/videoInfo['frame_count'])*100:.1f}%)")
-    epd.display(pil_im)
+    #epd.display(pil_im)
 
     # Increment the position
     if args.random_frames:
@@ -440,7 +443,7 @@ while True:
         with open(progressfile, "w") as log:
             log.write(str(currentFrame))
 
-    epd.sleep()
+    #epd.sleep()
 
     # Adjust sleep delay to account for the time since we started updating this frame.
     timeDiff = time.perf_counter() - timeStart
