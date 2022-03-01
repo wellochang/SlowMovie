@@ -23,6 +23,7 @@ from PIL import Image, ImageEnhance
 from fractions import Fraction
 #from omni_epd import displayfactory, EPDNotFoundError
 
+import cv2
 
 # Compatible video file-extensions
 fileTypes = [".avi", ".mp4", ".m4v", ".mkv", ".mov"]
@@ -269,8 +270,8 @@ except EPDNotFoundError:
     sys.exit(1)
 '''
 # set width and height
-width = 800 #epd.width
-height = 600 #epd.height
+width = 2560 #epd.width
+height = 1600 #epd.height
 
 # Set path of Videos directory and logs directory. Videos directory can be specified by CLI --directory
 if args.directory:
@@ -391,11 +392,15 @@ while True:
 
     # Use ffmpeg to extract a frame from the movie, letterbox/pillarbox it, and put it in memory as frame.bmp
     #generate_frame(currentVideo, "/User/wello/Documents/VSMP/SlowMovie/shm/frame.bmp", msTimecode)
-    generate_frame("/Users/wello/Documents/VSMP/SlowMovie/Videos/test.mp4", "/Users/wello/Documents/VSMP/SlowMovie/shm/frame.bmp", msTimecode)
+    generate_frame("/Users/wello/Documents/VSMP/SlowMovie/Videos/spider_man.mp4", "/Users/wello/Documents/VSMP/SlowMovie/shm/frame.bmp", msTimecode)
 
     # Open frame.bmp in PIL
     pil_im = Image.open("/Users/wello/Documents/VSMP/SlowMovie/shm/frame.bmp")
-    pil_im.show()
+    frame = cv2.imread('/Users/wello/Documents/VSMP/SlowMovie/shm/frame.bmp', cv2.IMREAD_GRAYSCALE)
+    cv2.imshow('frame', frame) 
+    cv2.waitKey(1)
+    cv2.destroyAllWindows()
+#pil_im.show()
 
     # Adjust contrast if specified
     if args.contrast != 1:
